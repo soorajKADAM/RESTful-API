@@ -34,4 +34,4 @@ app.post('/api/customer/addCustomer',(req,resp) =>{
 
 
 
-app.listen(8080)
+app.listen(3000)
