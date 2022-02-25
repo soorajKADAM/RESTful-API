@@ -1,5 +1,6 @@
 const express = require('express') //import express
 const app = express() //creating object from express app
+const jwt = require('jsonwebtoken');
 app.use(express.json())
 const products =[
     {product: 'Laptop', price:27, id:1},
@@ -14,14 +15,38 @@ app.get('/',(req, resp) =>{
 app.get('/api/products', (req, resp) =>{
     resp.send(products)
     })
-    app.post('/api/products/addProducts', (req, resp)=>{
-        var productinfo ={          
-           price: req.body.price,
-           product: req.body.product
+    app.post('/api/products/addProducts',verifyToken, (req, resp)=>{    
+        jwt.verify(req.token, 'secretkey',{expiresIn:'30s'}, (err, authData,productinfo) => {
+            if(err){
+
+            }else{
+             var productinfo ={          
+             price: req.body.price,
+            product: req.body.product
+             }
+             products.push(productinfo)  
+             resp.json({authData,productinfo});
+            
+             
+            }
+        })           
+     
+    })
+          
+       
+   
+
+    app.post('/api/login',(req, res)=>{
+        const user = {
+            id:1,
+            username: 'sooraj',
+            email: 'soorajak@gmail.com'
         }
-        products.push(productinfo)  
- 
-        resp.send(productinfo) 
+        jwt.sign({user}, 'secretkey', (err, token) => {
+            res.json({
+                token
+            });
+        });
     })
 
     app.delete('/api/products/deleteProduct/:id/',(req,resp) =>{
@@ -38,4 +63,19 @@ app.get('/api/products', (req, resp) =>{
         productinfo.product = req.body.product
         resp.send(productinfo)
     })
+
+    function verifyToken(req, res, next) {
+        //Get auth header value
+        const bearerHeader = req.headers['authorization'];
+        if(typeof bearerHeader !== 'undefined'){
+            const bearer = bearerHeader.split(' ');
+            const bearerToken = bearer[1];
+            req.token = bearerToken;
+            next();
+            
+            }else {
+            //forbidden
+            res.sendStatus(403);
+        }
+    }
     app.listen(8080)

@@ -62,7 +62,7 @@ app.delete('/api/products/:id',(req,resp) => {
 
 
 app.listen(8080, ()=> {  
-    MongoClient.connect('mongodb://localhost:27017', {useNewUrlParser: true},(error, result)  =>{ //type url for 
+    MongoClient.connect('mongodb://mongo:27017/productdb', {useNewUrlParser: true},(error, result)  =>{ //type url for 
          
     if(error) throw error
         database = result.db('productdb')
